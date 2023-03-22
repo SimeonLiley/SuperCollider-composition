@@ -1,0 +1,65 @@
+////////// GUI Control Window //////////
+(
+w = Window.new("Score", Rect(100, 300, 240, 220));
+
+////Butttons
+~mvt1 = Button(w, Rect(120, 40, 100, 15)).states_([
+[" ", Color.black, Color.red],
+["Here", Color.black, Color.green],
+]); 
+//
+~mvt2 = Button(w, Rect(120, 70, 100, 15)).states_([
+[" ", Color.black, Color.red],
+["Here", Color.black, Color.green]
+]).action_({~mvt1.valueAction = 0;});
+//
+~mvt3i = Button(w, Rect(120, 100, 100, 15)).states_([
+[" ", Color.black, Color.red],
+["Here", Color.black, Color.green]
+]).action_({~mvt2.valueAction = 0;});
+//
+~mvt3ii = Button(w, Rect(120, 130, 100, 15)).states_([
+[" ", Color.black, Color.red],
+["Here", Color.black, Color.green]
+]).action_({~mvt3i.valueAction = 0;});
+//
+~mvt3iii = Button(w, Rect(120, 160, 100, 15)).states_([
+[" ", Color.black, Color.red],
+["Here", Color.black, Color.green]
+]).action_({~mvt3ii.valueAction = 0;});
+//
+~mvt4 = Button(w, Rect(120, 190, 100, 15)).states_([
+[" ", Color.black, Color.red],
+["Here", Color.black, Color.green],
+["The End", Color.black, Color.yellow]
+]).action_({~mvt3iii.valueAction = 0;});
+//
+////// lables
+v = StaticText(w, Rect(30, 10, 500, 20));
+v.font = Font("Monaco", 13);
+v.string = "A Soggy Cigarette in the Rain";
+e = StaticText(w, Rect(20, 40, 70, 15));
+e.font = Font("Monaco", 13);
+e.string = "Movement I:";
+c = StaticText(w, Rect(20, 70, 75, 15)); 
+c.font = Font("Monaco", 13);
+c.string = "Movement II:"; 
+x = StaticText(w, Rect(20, 100, 85, 15));
+x.font = Font("Monaco", 13); 
+x.string = "Movement III: i";
+u = StaticText(w, Rect(100, 130, 10, 15));
+u.font = Font("Monaco", 13);
+u.string = "ii";
+p = StaticText(w, Rect(100, 160, 10, 15)); 
+p.font = Font("Monaco", 13);
+p.string = "iii";
+x = StaticText(w, Rect(20, 190, 85, 15));
+x.font = Font("Monaco", 13); 
+x.string = "Movement IV:";
+////////////////////////
+///////////////
+w.front; ////front window
+)
+////////// End of Window Code //////////
+//Move the Gui window and post window and Executables window so they are all in sight
+//Minimize this window and go to executeables             

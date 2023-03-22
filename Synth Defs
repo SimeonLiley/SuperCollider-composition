@@ -1,0 +1,318 @@
+//Synth Defs
+s.boot;
+
+
+
+/////Array fun time
+(
+~freqArray = #[300,350,374,400,432,476,499,523];
+~keyArray = [62.midicps, 59.midicps, 61.midicps, 54.midicps, 51.midicps, 53.midicps];
+~envArray = #[0,0.05,0.15,0.2,0];
+//Groups
+//I:
+~craingroup = Group.new();
+//III:
+~pluckGroup = Group.new();
+~pluckGroupvib = Group.new();
+
+
+)
+
+
+
+/////////////////////////
+//Start of Synth Defs///////////////////////////////////////////////////////
+/////////////////////////
+
+//Mvt I Synth Defs:
+(
+
+//Good synths!
+//I 1/8
+SynthDef('aGoodSynth', { arg freq;
+var train, freq2, freq3, freq4, pan;
+freq2 = freq*0.456;
+freq3 = freq*0.833;
+freq4 = freq2+freq3;
+train = Klank.ar(`[[freq, freq2, freq3, freq4], nil, [1, 1, 1, 1, 1],[1,2,1,2,1]], PinkNoise.ar(0.007));
+train = HPF.ar(train, 1300);
+pan = MouseX.kr(-1, 1, 0.01);
+train = Pan2.ar(train, pan);
+train = train * EnvGen.kr(Env.new([0,0.2,0.5,0.7,0.5,0.3,0],[3,4,2,1,2,1]), doneAction:2);
+Out.ar(0, Pan2.ar(train))
+}).send(s);
+
+//I 2/8
+SynthDef('aGoodSynthII', { arg freq;
+var train, freq2, freq3, freq4;
+freq2 = freq*0.456;
+freq3 = freq*0.833;
+freq4 = freq2+freq3;
+train = Klank.ar(`[[freq, freq2, freq3, freq4], [1, 0.9, 0.8, 0.7],[1,2,1,2,1]], Blip.ar(freq/10,6,0.1));
+train = HPF.ar(train, 1300);
+train = train * EnvGen.kr(Env.new([0,0.2,0.4,0.5,0.4,0.3,0],[3,4,2,1,2,1]), doneAction:2);
+Out.ar(0, Pan2.ar(train))
+}).send(s);
+
+//I 3/8
+SynthDef('aGoodSynthIII', { arg freq;
+var train, freq2, freq3, freq4;
+freq2 = freq*0.456;
+freq3 = freq*0.833;
+freq4 = freq2+freq3;
+train = Klank.ar(`[[freq, freq2, freq3, freq4], [1, 0.9, 0.8, 0.7],[1,2,1,2,1]], LFSaw.ar(freq/2, 1, 0.001));
+train = HPF.ar(train, 1300);
+train = train * EnvGen.kr(Env.new([0,0.2,0.3,0.4,0.3,0.2,0],[3,4,2,1,2,1]), doneAction:2);
+Out.ar(0, Pan2.ar(train))
+}).send(s);
+
+//I 4/8
+SynthDef('aGoodSynthIV', { arg freq;
+var train, freq2, freq3, freq4;
+freq = freq*0.833;
+freq2 = freq*0.456;
+freq3 = freq*0.833;
+freq4 = freq2+freq3;
+train = Klank.ar(`[[freq, freq2, freq3, freq4], [0.6, 0.5, 0.4, 0.3],[1,2,1,2,1]], LFSaw.ar(freq/2, 1, 0.001));
+train = LPF.ar(train, 300);
+train = train * EnvGen.kr(Env.new([0,0.1,0.2,0.3,0.2,0.1,0],[3,4,2,1,2,1]), doneAction:2);
+Out.ar(0, Pan2.ar(train*0.75)) // , MouseX.kr(-1,1)))
+}).send(s);
+
+//I 5/8
+SynthDef('Brain1', { //Harder
+var trig, o, v, d, out; 
+trig = 1;
+o = TRand.kr(0, 0.5, trig);
+v = WhiteNoise.ar(1).dup(12).sum;
+d = RLPF.ar(Saw.ar(100, 0.1), LFNoise1.kr(MouseY.kr(20,250)).range(400, 4000), 0.005, 0.1);//Wetter at bottom
+d = d * EnvGen.ar(Env.new([0.01,4,0.0,0.0],[Rand(0.01,0.03),Rand(0.01,0.03), Rand(0.01,0.03)]), trig, timeScale: o, doneAction: 2);
+d = Pan2.ar(d, Rand(-1, 1)); // random stereo pan
+Out.ar(0, d)
+}).send(s);
+
+//I 6/8
+SynthDef('Brain2', { //Wetter
+var o, v, d, out, trig;
+trig = 1;
+o = TRand.kr(0, 0.5, trig);
+v = WhiteNoise.ar(1).dup(12).sum;
+d = RLPF.ar(Saw.ar(100, 0.1), LFNoise1.kr(MouseY.kr(20,250)).range(400, 4000), 0.005, 0.1);//Wetter at bottom
+d = Resonz.ar(d, 500);
+d = d * EnvGen.ar(Env.new([0.01,4,0.0,0.0],[Rand(0.01,0.03),Rand(0.01,0.03), Rand(0.01,0.03)]), trig, timeScale: o, doneAction: 2);
+out = [DelayC.ar(d,0.01,0.01),DelayC.ar(d,0.02,0.02)];
+Out.ar(0, out)
+}).send(s);
+
+
+//I 7/8
+SynthDef('Crain', { arg num = 6; //repeating drip, random pan
+var noise, env, del, input, average, fb, trig, rain;
+trig = Impulse.ar(Rand(1,num));
+noise = PinkNoise.ar.squared;
+env = Decay2.ar(trig, 0.01, 0.05);
+fb = LocalIn.ar(1);
+input = noise * env + fb;
+del = DelayC.ar(input, 1/6900, 1/4400);
+average = LPZ1.ar(del);
+LocalOut.ar(average * 0.98);
+rain = RLPF.ar(Saw.ar(100, 0.1), LFNoise1.kr(MouseY.kr(200,250)).range(400, 4000), 0.005, 0.1);
+rain = Resonz.ar(rain, 500);
+del = del*rain*3;
+del = Pan2.ar(del, Rand(-1, 1)); // random stereo pan
+Out.ar(0,del);
+}).send(s);
+
+//I 8/8
+SynthDef('CrainMouse', { arg num = 6; //repeating drip, random pan - IS THIS DIFFERENT TO THE ABOVE??
+var noise, env, del, input, average, fb, trig, rain, out;
+trig = Impulse.ar(Rand(1,num));
+noise = PinkNoise.ar.squared;
+env = Decay2.ar(trig, 0.01, 0.05);
+fb = LocalIn.ar(1);
+input = noise * env + fb;
+del = DelayC.ar(input, 1/6900, 1/4400);
+average = LPZ1.ar(del);
+LocalOut.ar(average * 0.98);
+rain = RLPF.ar(Saw.ar(100, 0.1), LFNoise1.kr(MouseY.kr(200,250)).range(400, 4000), 0.005, 0.1);
+rain = Resonz.ar(rain, 500);
+del = del*rain*3;
+out = [DelayC.ar(del,0.5,MouseX.kr(0.01, 0.5)),DelayC.ar(del,0.2,MouseX.kr(0.2, 0.02))];
+Out.ar(0,out);
+}).send(s);
+
+//End of Mvt I Synth Defs:
+
+/////////////////////////
+//Movement II Synth Defs///////////////////////////////////////////////////////
+/////////////////////////
+
+//(USES ARRAY ~freqArray - Do array first)
+//II 1/5
+SynthDef('TreadSonorous', { arg gate = 1;
+var step, walk, env, env1;
+env = EnvGen.ar(Env.new([3,1,0,0],[2,2,0.4], 'welch'), gate, doneAction:2)*BrownNoise.ar*3;
+env1 = EnvGen.kr(Env.perc(1, 0.4, 1, -3), gate, doneAction:0);
+step = SinOsc.ar(env, 0.1, env1);
+step = step*Klank.ar(`[ (~freqArray.scramble.squared/1000), 0.5, Array.rand(12, 0.1, 2)], 
+						Decay.ar(Impulse.ar(2), 0.03,ClipNoise.ar(0.01)));//Klank[Freq,amp,ringtimes]
+step = BPF.ar(step,500, 4);
+Out.ar(0, Pan2.ar(step))
+}).send(s);
+
+//II 2/5
+SynthDef('SonRain', { arg trig, freq = 400; var o, d, p;
+trig = 1;
+o = TRand.kr(0.3, 0.7, trig);
+d = SinOsc.ar([freq, freq+(100*o)], 1, 0.25, 1);
+d = Resonz.ar(d, freq, 0.1);
+p = EnvGen.ar(Env.new([0,0.05,0.5,0.05,0],[0.2,0.4,0.4,0.2]), trig, timeScale: o, doneAction: 2);
+d = d*p;	
+Out.ar(0, d)
+}).send(s);      
+
+//II 3/5
+SynthDef('RumbleLow', { |envA = #[0,0.05,0.15,0.2,0]|
+var rumb;
+rumb = LFNoise2.ar([200,230]);
+rumb = rumb*EnvGen.ar(Env.new(envA,[1,2,2,5], 'sine'), doneAction: 2);
+rumb = Resonz.ar(rumb, [200,230], 1);
+Out.ar(0,rumb)
+}).send(s);
+
+//II 4/5
+SynthDef('RumbleUp', { var rumb;
+rumb = LFNoise2.ar([XLine.ar(200,1000,6),XLine.ar(230,1060,6)]);
+rumb = BPF.ar(rumb, 500, (500/750));
+rumb = rumb*EnvGen.ar(Env.new([0,0.1,0.3,0.2,0],[1,2,2,4], 'sine'), doneAction: 2);
+Out.ar(0,rumb)
+}).send(s);
+
+
+//II 5/5
+SynthDef(\Bass, { |freq = 440, amp = 0.1, gate = 1, sus = 0.05, num = 1|
+    var midfreqs, sound, vibenv, freq1, mouserez;
+//Frequency
+
+//freq = Lag.kr(LFPulse.kr(4, 0, 0.5, 50, 400), Line.kr(0, 1, 15)); //Vibrato lag
+vibenv = EnvGen.kr(Env.new([0,0.5,-0.5,0], [0.1,0.2,0.1], loopNode:1));
+freq = LinXFade2.kr(freq, freq *LFPar.kr(3).exprange(0.98, 1.02), vibenv);//Channel fade different freqs
+
+//Keep the sound alive
+midfreqs = [freq, freq + (3.87 * rrand(-2.0, 2.0) )];//+ LFPar.kr(3).exprange(0.98, 1.02)*2];// + (3.87 * (-2 .. 2));
+//Main Actual Sound
+sound = Saw.ar(midfreqs).sum 
+	+ SinOsc.ar(freq * [0.25, 0.5, 0.75], 0, [1/7, 0.3, 0.2] * 2).sum; //Saw with SinOsc subharmonics - bassy
+//Filter - Low Pass Filter
+sound = RLPF.ar(sound, freq);
+//Envelope for release
+sound = sound * EnvGen.ar(Env.new([0,1,0],[3,3], 'linear'), gate, doneAction:2);
+	//////////////////////////////////////////////////////
+mouserez = MouseY.kr(freq*0.25,freq*3); //Mouse control for resonz frequency
+sound = Pan2.ar( 
+		CombN.ar( 
+			Resonz.ar(sound,mouserez, 0.04, 2*((1/mouserez)*(0.5*mouserez))) 
+		,0.1,0.4,5, 2)
+	, 0.0);
+Out.ar(0, (sound * 0.5))
+}).send(s);
+
+/////////////////////////
+//End of Movement II Synth Defs///////////////////////////////////////////////////////
+/////////////////////////
+
+//Mvt III Synth Defs:
+
+//III 1/2
+SynthDef('Pluck', { arg mod1 = 0, mod2 = 100, num = 1, cFreq = 200, vibset = 0, sus = 0.05, volamp = 0.02;//
+var mod, out, vib, i1, i2, i3, f1, f2, f3, osc1, osc2, osc3, oscTotal, noise, env, del, input, average, fb, trig;
+
+	//Vibrato
+	 	vib = (SinOsc.ar(2, 0, 0.021)*vibset);
+	//Frequencies and tings
+		mod = MouseX.kr(mod1,mod2);	
+		f1 = cFreq+mod;		//fundamentals
+		f2 = (3*cFreq) + (2.99*mod);
+		f3 = (4*cFreq)+(3.98*mod);
+		cFreq = 200+mod;	//Carrier Frequency
+		i1 = 1.415-(mod/20);		//mul
+		i2 = 1.06-(mod/60);
+		i3 = 0.088-(mod/80);
+	//SinOcs'
+	osc1 = SinOsc.ar([f1,f1+(i1*mod)]*vib, 0, i1*f1);//Get this 3 sine waves!
+	osc2 = SinOsc.ar(f2, 0, i2*f2);
+	osc3 = SinOsc.ar(f3, 0, i3*f3);
+	oscTotal = Mix.ar([osc1, osc2, osc3]);
+out = SinOsc.ar((cFreq + oscTotal), 0, volamp);
+//////////////////////////////////////////////////////
+//Karplus strong algorithem
+trig = Impulse.ar(Rand(1,num));
+noise = WhiteNoise.ar.squared;
+env = Decay2.ar(trig, 0.01, sus);
+fb = LocalIn.ar(1);
+input = noise * env + fb;
+del = DelayC.ar(input, 1/6900, 1/4400);
+average = LPZ1.ar(del);
+LocalOut.ar(average * 0.98);
+//Put them together
+out = del*out;
+//
+Out.ar(0, out)
+}).send(s);
+
+//////////////////
+//III 2/2
+b = Buffer.read(s, "sounds/gtar3 - q.wav");
+SynthDef("Gbuff",{ arg i_out=0, i_sampbufnum, loop = 1, rate = 1, fshiftr = 0, fshiftl = 0, a1 = 0.7, a2 = 0.8, a3 = 0.6, mul1 = 1;
+	var buf;
+	buf = PlayBuf.ar(1, b, 1);
+buf = Klank.ar(`[[68.midicps, 65.midicps, 67.midicps],[0.001,0.001,0.001], [2,2,3]], buf); //G# F G
+	buf = buf*EnvGen.ar(Env.new([0,a3,a1,a2,0],[0.05,0.5,0.5,2], 'linear'), doneAction: 2);
+   	buf = Pan2.ar(buf, Rand(-1, 1)); // random stereo pan
+	buf = FreqShift.ar(buf, [fshiftl, fshiftr], mul1);
+	OffsetOut.ar(i_out,buf); // use OffsetOut for precise sub-block timing
+}).send(s);
+
+/////////////////////////
+//End of Movement III Synth Defs///////////////////////////////////////////////////////
+/////////////////////////
+
+//Coda Synth Defs:
+
+//////////////////
+//Coda 1/2
+SynthDef('aGoodCodaSynth', { arg freq;
+var train, freq2, freq3, freq4, pan;
+freq2 = freq*0.456;
+freq3 = freq*0.833;
+freq4 = freq2+freq3;
+train = Klank.ar(`[[freq, freq2, freq3, freq4], nil, [1, 1, 1, 1, 1],[1,2,1,2,1]], PinkNoise.ar(0.007));
+train = HPF.ar(train, 1300);
+pan = MouseX.kr(-1, 1, 0.01);
+train = Pan2.ar(train, pan);
+train = train * EnvGen.kr(Env.new([0,0.2,0.3,0.4,0.3,0.2,0],[3,3,2,2,2,2]), doneAction:2);
+Out.ar(0, train*0.5)
+}).send(s);
+
+//////////////////
+//Coda 2/2
+SynthDef(\FinalNote, { |freq = 220, amp = 0.1, gate = 1, sus = 0.05, num = 1|
+    var midfreqs, sound, vibenv, freq1, mouserez;
+sound = LFNoise1.ar(100,2)*EnvGen.ar(Env.new([1,0],[0.25], 'welch'));
+sound = sound + SinOsc.ar(freq/2)*EnvGen.ar(Env.new([1,0],[0.25], 'welch'));// + SinOsc.ar(freq/4)*EnvGen.ar(Env.new([1,0],[0.25], 'welch'));
+sound = sound + WhiteNoise.ar(1)*EnvGen.ar(Env.new([0,1,0.5,0.1,0],[0.1,0.1,4,5], 'welch'));//Change here if its too loud which it might
+sound = sound + (LFSaw.ar([freq, freq*0.5], 0, 0.01)*EnvGen.ar(Env.new([0,1,0.1,0],[0.2,1,1], 'welch'), doneAction:0));
+sound = LPZ1.ar(sound);
+sound = LPF.ar(sound, 2*freq);
+sound = CombN.ar(Resonz.ar(sound, freq, 0.04, 2), 1, 0.1, 10, 2);
+sound = BPF.ar(sound, freq, XLine.kr(2,0.04,10), 1);
+sound = FreqShift.ar(sound, -200);
+Out.ar(0, (sound*0.5))
+}).send(s);
+
+/////////////////////////
+//End of Synth Defs///////////////////////////////////////////////////////
+///////////////////////// 
+
+)
+//Minamize this window and move to tasks                         

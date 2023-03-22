@@ -1,0 +1,187 @@
+//Executables 
+
+//Step 1 - Brain Fork it
+//Step 2 - Add GoodTask
+//Step 3 - Crain and Brain tasks
+//Step 6 - Start mvt II - when end task appears/ when left with just Brain fork
+//Step 5 - Stop Brain Forks
+
+//GoodSynth Backing task
+~goodTask.start;
+//~goodTask.stop;
+
+//Brain Fork it!
+(
+g = {
+var numRain = 1.2; 
+var dur = 0.05, durRand = 0.25, thisDur;
+var start, now;
+var numRainRecip;
+numRainRecip = numRain.reciprocal;
+
+loop({
+	thisDur = dur + durRand.rand;
+	s.bind({
+		Synth('Brain1')
+	});
+(thisDur * numRainRecip +0.0011).wait;
+})
+}.fork;
+)
+
+(
+f = {
+var numRain = 1.2; 
+var dur = 0.05, durRand = 0.05, thisDur;
+var start, now;
+var numRainRecip;
+numRainRecip = numRain.reciprocal;
+
+loop({
+	thisDur = dur + durRand.rand;
+	s.bind({
+		Synth('Brain2')
+	});
+(thisDur * numRainRecip +0.001).wait;
+})
+}.fork;
+)
+
+g.stop;
+f.stop;
+
+//GoodSynth Backing task
+//~goodTask.start;
+//about 80 s
+//~goodTask.stop;
+
+//Brain Task
+~brain.start;//give it 10 seconds
+//~brain.stop;
+//~brain.pause; 
+//~brain.resume; 
+
+//Crain
+~crain.start;
+
+Synth('Crain', [\num, 2], g);
+Synth('Crain', [\num, 1], g);
+Synth('CrainMouse', [\num, 3], g);
+Synth('CrainMouse', [\num, 6], g);
+g.free;
+////////////////////////
+
+//Synth('aGoodSynth', [\freq, 300]);
+//Synth('aGoodSynthIII', [\freq, 400]);
+//Synth('aGoodSynthII', [\freq, 500]);
+//Synth('aGoodSynthIV', [\freq, 70]);
+///// Each 13 seconds long
+
+//End of Mvt II Executables:
+
+/////////////////////////
+//Movement II Executables///////////////////////////////////////////////////////
+/////////////////////////
+
+
+~tread.start;
+Synth('RumbleUp'); 
+Synth('RumbleLow'); //Deafault Quiet
+
+Synth('RumbleLow', [\envA, ~envArray]);
+//Rumble low volume arrays - start quiet
+~envArray = #[0,0.05,0.15,0.2,0];	//Quietest - Default
+~envArray = #[0,0.1,0.3,0.4,0];	//Quiet
+~envArray = #[0,0.15,0.35,0.45,0];	//louder
+~envArray = #[0,0.2,0.4,0.5,0];	//loudest
+
+//Synth('TreadSonorous', [\amp, 4]);      
+Synth(\Bass, [\freq,220]);	//lasts 2 seconds
+ 
+//~bassroutien.play;	//96s - elide with mvt III - bridge
+
+//Executeables:~tread.stop;
+
+//End of Mvt II Executables:
+
+/////////////////////////
+//Movement III Executables///////////////////////////////////////////////////////
+/////////////////////////
+
+//\Bass continues for most of A - Use smooth mouse motions
+//^-Dive down when prompted
+//A
+//Move mouse to change frequencey - left edge of gui is most stable area
+//B
+//nothing
+//A'
+//Move mouse to change frequency - Smooth motions - more stationary as it goes on
+//Use \Bass
+Synth('RumbleLow', [\envA, ~envArray]);	//Use Rumble low 
+//~keyArray = [62.midicps, 59.midicps, 61.midicps, 54.midicps, 51.midicps, 53.midicps];
+Synth(\BassKeyPress, [\freq,~keyArray.at(1), \press, SAD]);	//KEYSTATES
+Synth(\BassKeyPress, [\freq,~keyArray.at(2), \press, SAD]);	//KEYSTATES
+Synth(\BassKeyPress, [\freq,~keyArray.at(3), \press, SAD]);	//KEYSTATES
+Synth(\BassKeyPress, [\freq,~keyArray.at(4), \press, SAD]);	//KEYSTATES
+Synth(\BassKeyPress, [\freq,~keyArray.at(5), \press, SAD]);	//KEYSTATES
+Synth(\BassKeyPress, [\freq,~keyArray.at(5), \press, SAD]);	//KEYSTATES
+
+(
+g = {
+var numRain = 1.2; 
+var dur = 0.05, durRand = 0.25, thisDur;
+var start, now;
+var numRainRecip;
+numRainRecip = numRain.reciprocal;
+
+loop({
+	thisDur = dur + durRand.rand;
+	s.bind({
+		Synth('Brain1')
+	});
+(thisDur * numRainRecip +0.0011).wait;
+})
+}.fork;
+)
+g.stop;
+
+//Executables
+//~pluckTaskvib.start;
+//~pluckTask.start;
+
+
+////
+~pluckGroupExecute = Group.new();	//mod1/1 swap MouseX command arround
+~pluck1Execute = Synth('Pluck', [\num, 1, \cFreq, 200, \mod1, 100, \mod2, 0], ~pluckGroupExecute);  
+~pluck2Execute = Synth('Pluck', [\num, 1, \cFreq, 300, \mod1, 100, \mod2, 0], ~pluckGroupExecute);
+~pluck3Execute = Synth('Pluck', [\num, 1, \cFreq, 400, \mod1, 100, \mod2, 0], ~pluckGroupExecute);
+~pluck4Execute = Synth('Pluck', [\num, 1, \cFreq, 500, \mod1, 100, \mod2, 0], ~pluckGroupExecute);
+~pluck5Execute = Synth('Pluck', [\num, 1, \cFreq, 100, \mod1, 100, \mod2, 0], ~pluckGroupExecute);
+~pluck1Execute.free;
+~pluckGroupExecute.free;
+////////////////////////
+
+~pluckGroupExecute = Group.new();
+~pluck1Execute = Synth('Pluck', [\num, 1, \cFreq, 200, \vibset, 1, \mod1, 100, \mod2, 0], ~pluckGroupExecute);  
+~pluck2Execute = Synth('Pluck', [\num, 1, \cFreq, 300, \vibset, 1, \mod1, 100, \mod2, 0], ~pluckGroupExecute);
+~pluck3Execute = Synth('Pluck', [\num, 1, \cFreq, 400, \vibset, 1, \mod1, 100, \mod2, 0], ~pluckGroupExecute);
+~pluck4Execute = Synth('Pluck', [\num, 1, \cFreq, 500, \vibset, 1], ~pluckGroupExecute);
+~pluck5Execute = Synth('Pluck', [\num, 1, \cFreq, 100, \vibset, 1], ~pluckGroupExecute);
+//Age of empires
+~pluck3Execute.free;
+~pluckGroupExecute.free;
+
+/////////////////////////
+//End of Movement III Executables///////////////////////////////////////////////////////
+/////////////////////////
+//No coda executables
+/////////////////////////
+//End of Code///////////////////////////////////////////////////////
+///////////////////////// 
+
+//Instructions - directions - more
+//Clock counter on gui window? 
+//Add notes to post window?   
+//Bigger Climax before coda/at coda
+//Around 8 minutes  
+//sonRain - Variable names 

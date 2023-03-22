@@ -1,0 +1,564 @@
+//Tasks 
+
+//////////
+//Brain Task
+(
+var time1 = max(0.7.rand,0.3);
+var time2 = max(0.8.rand,0.4);
+var time3 = max(0.9.rand,0.5);
+var time4 = max(0.6.rand,0.2);
+~brain = Task({
+
+SystemClock.sched(0, {
+		Synth('Brain1'); time1
+});
+1.wait;
+SystemClock.sched(0.2, {
+		Synth('Brain2'); time2
+});
+1.wait;
+SystemClock.sched(0.1, {
+		Synth('Brain1'); time3
+});
+1.wait;
+SystemClock.sched(0.1, {
+		Synth('Brain2'); time4
+});
+
+6.wait;
+time1 = nil;
+
+3.wait;
+time2 = nil;
+
+1.wait;
+time4 = nil;
+
+1.wait;
+time3 = nil;
+"rain over".postln;
+});
+//)
+//~brain.start;
+
+//Good Synth Backing Task
+////Good synth task
+
+//(
+//Uses ~freqArray
+~goodTask = Task({ 
+(
+~mvt1.valueAction = 1;
+~timex =  Main.elapsedTime;
+3.do({var val, numRepeat, numt = 8.rand;
+numt.value.postln;
+val = ~freqArray.at(numt);
+numt = numt+2;
+	Synth('aGoodSynth', [\freq, val]);
+val.value.postln;
+numt.wait;
+});
+///////////////////////
+2.wait;		///////Part 2
+///////////////////////
+
+2.do({var val, numRepeat, numt = 8.rand;
+numt.value.postln;
+val = ~freqArray.at(numt);
+numt = numt+0.5;
+	Synth('aGoodSynthII', [\freq, val]);
+numt/10.wait;
+	Synth('aGoodSynth', [\freq, val]);
+val.value.postln;
+numt.wait;
+});
+
+///////////////////////
+1.6.wait;		///////Part 3
+///////////////////////
+
+2.do({var val, numRepeat, numt = 8.rand;
+numt.value.postln;
+val = ~freqArray.at(numt);
+numt = numt+0.5;
+	Synth('aGoodSynthIII', [\freq, val]);
+numt/5.wait;
+	Synth('aGoodSynth', [\freq, val*1.5]);
+val.value.postln;
+numt.wait;
+});
+
+///////////////////////
+1.3.wait;		///////Part 4
+///////////////////////
+2.do({var val, numRepeat, numt = 8.rand;
+numt.value.postln;
+val = ~freqArray.at(numt);
+numt = numt+1.5;
+	Synth('aGoodSynth', [\freq, val]);
+val.value.postln;
+numt.wait;
+});
+1.wait;
+2.do({var val, numRepeat, numt = 8.rand;
+numt.value.postln;
+val = ~freqArray.at(numt);
+val = val/2.2;
+numt = numt+1.5;
+	Synth('aGoodSynthIV', [\freq, val]);
+val.value.postln;
+numt.wait;
+});
+)
+//End
+});
+//
+//~goodTask.start;
+//about 80 s
+
+//Crain task
+(
+~crain = Task({ var one, two, three, four, groupCrain, cBrain;
+( 
+cBrain = {
+var numRain = 2; 
+var dur = 0.05, durRand = 0.05, thisDur;
+var start, now, numRainRecip;
+numRainRecip = numRain.reciprocal;
+
+loop({
+	thisDur = dur + durRand.rand;
+	s.bind({
+		Synth('Brain2')
+});
+(thisDur * numRainRecip +0.001).wait;
+})
+}.fork;
+);
+groupCrain = Group.new();
+2.wait;
+one = Synth('Crain', [\num, 3], groupCrain);
+3.wait;
+two = Synth('Crain', [\num, 4], groupCrain);
+3.2.wait;
+
+three = Synth('CrainMouse', [\num, 5], groupCrain);
+10.wait;
+z.stop;
+5.wait;
+one.free;
+2.wait;
+four = Synth('CrainMouse', [\num, 6], groupCrain);
+1.wait;
+cBrain.stop;
+three.free;
+2.wait;
+two.free;
+2.wait;
+four.free;
+groupCrain.free;
+"~crain task over".postln;
+})
+);
+	//Approx 30 seconds
+	//~crain.start;
+)
+
+/////////////////////////
+//End of Movement I Tasks/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////
+
+//Mvt II Tasks:
+
+(
+//Task 1/2
+(
+//89 seconds total
+~tread = Task({
+var temp, temp1, temp2, groupII;
+~mvt2.valueAction = 1; //gui window change
+//Variables
+	groupII = Group.new();
+	temp = TempoClock(0.4);
+	temp1 = TempoClock(0.1);
+	temp2 = TempoClock(0.1);
+//Tempo task
+temp.schedAbs(temp.beats.ceil, { Synth('TreadSonorous', [\amp, 0.4], groupII); 1 });
+5.wait;
+temp1.schedAbs(temp1.beats.ceil, { Synth('TreadSonorous', [\amp, 0.4], groupII); 1 }); 
+5.wait;
+temp.tempo = 0.7;
+10.wait;
+temp.tempo = 0.8;
+9.wait;
+temp.tempo = 0.9;
+9.wait;
+temp.tempo = 1;
+8.wait;
+temp1.tempo = 0.6;
+8.wait;
+temp1.tempo = 0.9;
+9.wait;
+temp.tempo = 1.2;
+10.wait;
+temp.tempo = 1.5;
+"~bassroutien.play;".postln; //31seconds in
+~bassroutien.play;
+9.wait;
+temp1.tempo = 2;
+//Third sound!
+temp2.schedAbs(temp2.beats.ceil, { Synth('SonRain', [\freq, [300,372,413,531,455].choose;], groupII); 1 });
+5.wait;
+temp2.tempo = 0.5; 
+8.wait;
+temp.tempo = 1.2;
+7.wait;
+temp1.tempo = 0.9;
+temp2.tempo = 8/9;
+6.wait;
+temp1.tempo = 0.8;
+5.wait;
+temp.tempo = 1;
+temp2.tempo = 1.1;
+4.wait;
+temp1.tempo = 1/3;
+3.wait;
+temp.tempo = 2/3;
+temp2.tempo = 8/9;
+3.wait;
+temp1.tempo = 0.1;
+2.wait;
+temp.tempo = 0.2;
+temp2.tempo = 2/3;
+2.wait;
+temp.tempo = 0.1;
+temp2.tempo = 0.2;
+2.wait;
+~pluckTask.start;	//MVT III STARTS
+"Mvt III Start".postln;
+temp.stop;
+2.wait;
+temp1.stop;
+temp2.stop;
+groupII.free;
+~y = Main.elapsedTime;
+~y = ~y-~x;
+~y.postln;
+"End of Mvt II".postln;
+})
+);//End of tread task
+///////////
+
+//// Task 2/2
+~bassroutien = Routine({ //Bass routine
+//Routine
+~x = Main.elapsedTime;
+"r1".postln;
+~bassnote = Pseq([57.midicps, 58.midicps], 2).asStream; //Set 1 - some pitches
+4.do({ 
+Synth(\Bass, [\freq, ~bassnote.next,\sus,1]); 
+2.wait; 
+}); 
+//2
+"r2".postln;
+//set 2 more notes
+~bassnote = Pseq([57.midicps, 54.midicps, 52.midicps, 50.midicps, 51.midicps, 53.midicps, 55.midicps, 56.midicps], 2).asStream; 
+8.do({ 
+Synth(\Bass, [\freq, ~bassnote.next]); 
+2.wait; 
+}); 
+//3
+"r3".postln;
+~bassnote = Pseq([56.midicps, 53.midicps, 55.midicps], 3).asStream; //Buffer pitches
+9.do({ 
+Synth(\Bass, [\freq, ~bassnote.next]); 
+2.wait; 
+});
+//4
+"r4 - low half of screen".postln;
+~bassnote = Pseq([62.midicps, 59.midicps, 61.midicps], 3).asStream; //Up a 5th
+9.do({ 
+Synth(\Bass, [\freq, ~bassnote.next]); 
+2.wait; 
+});  
+//5
+"r5".postln;
+~bassnote = Pseq([54.midicps, 51.midicps, 53.midicps], 6).asStream; //transposed again
+18.do({ 
+Synth(\Bass, [\freq, ~bassnote.next]); 
+2.wait; 
+});  
+~y = Main.elapsedTime;
+~y = ~y-~x;
+~y.postln;
+"rEnd - Dive down".postln;
+});
+)
+
+/////////////////////////
+//End of Movement II Tasks///////////////////////////////////////////////////////
+/////////////////////////
+
+//Mvt III Tasks:
+(
+//Section A - Task 1/3
+
+~pluckTask = Task.new( {
+~pluckGroup = Group.new();
+~mvt3i.valueAction = 1;	//gui window change
+
+~pluck1 = Synth('Pluck', [\num, 1, \cFreq, 68.midicps, \vibset, 0], ~pluckGroup);
+3.wait;
+~pluck2 = Synth('Pluck', [\num, 1.5, \cFreq, 65.midicps], ~pluckGroup);
+4.5.wait;
+~pluck3 = Synth('Pluck', [\num, 1, \cFreq, 67.midicps], ~pluckGroup);
+7.wait;//22.5
+~pluck1.free;
+~pluck4 = Synth('Pluck', [\num, 2, \cFreq, 500], ~pluckGroup);
+3.5.wait;
+~pluck2.free;
+4.wait;
+~pluck5 = Synth('Pluck', [\num, 1, \cFreq, 100], ~pluckGroup);
+2.wait;
+~pluck3.free;
+3.5.wait;//35.5
+~pluck5.free;
+~pluck1 = Synth('Pluck', [\num, 1.3, \cFreq, 68.midicps], ~pluckGroup);
+7.3.wait;
+~pluck4.free;
+~pluck3 = Synth('Pluck', [\num, 1, \cFreq, 67.midicps], ~pluckGroup);
+4.wait;
+~pluck1.free;
+~pluck4 = Synth('Pluck', [\num, 2, \cFreq, 500, \volamp, 0.01], ~pluckGroup);
+8.wait;
+~pluck3.set(\volamp, 0.01);
+~bufferTask.start;//TASK B STARTS
+3.3.wait;//54.1
+~pluck3.set(\volamp, 0.005);
+3.wait;
+~pluck4.set(\volamp, 0.005);
+2.wait;
+~pluck3.set(\volamp, 0.001);
+4.wait;
+~pluck4.set(\volamp, 0.001);
+~pluck3.free;
+2.wait;
+~pluck4.free;
+~pluckGroup.free;
+});
+
+//
+//Section B - Task 2/3
+//
+
+~bufferTask = Task.new({
+~mvt3ii.valueAction = 1;	//gui window change
+
+~btemp = TempoClock(1);
+~btemp.schedAbs(~btemp.beats.ceil, { ~sone = Synth("Gbuff", [\i_sampbufnum: b, \a1:0, \a2:0, \a3, 0.1]); 1 });//1
+10.wait; //6
+~btemp1 = TempoClock(0.5);
+~btemp1.schedAbs(~btemp1.beats.ceil, { Synth("Gbuff", [\i_sampbufnum: b, \a1, 0.3, \a2:0, \a3, 0.3]); 1 });//first 2
+5.wait; //10
+~btemp.tempo = 2;
+3.wait; //10
+~btemp2 = TempoClock(0.5);
+~btemp2.schedAbs(~btemp2.beats.ceil, { Synth("Gbuff", [\i_sampbufnum: b, \a1:0, \a2: 0.7, \a3: 0]); 1 });//last 2
+4.wait;
+~btemp.stop;
+~btemp1.stop;
+~btemp2.stop;
+~btemp3 = TempoClock(0.5);
+~btemp3.schedAbs(~btemp3.beats.ceil, { Synth("Gbuff", [\i_sampbufnum: b]); 1 });//All of it
+~btemp3.tempo = 1;
+"temp3 start".postln;
+3.wait;
+~btemp3.tempo = 0.5;
+3.wait;
+~btemp2 = TempoClock(1);
+~btemp2.schedAbs(~btemp2.beats.ceil, { ~gSynth = Synth("Gbuff", [\i_sampbufnum: b, \a1:0, \a2: 0.7, \a3: 0]); 1 });//last 2
+"last 2".postln;
+3.wait;	
+~btemp3.stop;
+~gSynth.set(\fshiftl, -100);//Changes fshiftl for one
+2.wait; //Changes here
+~btemp2.tempo = 1.1;
+2.wait;
+~btemp2.tempo = 1.2;
+~gSynth.set(\fshiftl, -100);
+2.wait;
+~btemp2.tempo = 1.3;
+2.wait;
+~btemp2.tempo = 1.4;
+~gSynth.set(\fshiftl, -100, \fshiftr, -50);
+2.wait;
+~btemp2.tempo = 1.5;
+~gSynth.set(\fshiftl, -100, \fshiftr, -50);
+2.wait;
+~gSynth.set(\fshiftl, -50);
+2.wait;
+~gSynth.set(\fshiftl, -100, \fshiftr, 50);
+2.wait;
+~gSynth.set(\fshiftl, 50, \fshiftr, -100);
+2.wait;
+~gSynth.set(\fshiftl, -100, \fshiftr, -50);
+~btemp3 = TempoClock(0.5);
+~btemp3.schedAbs(~btemp3.beats.ceil, { ~gSynth3 = Synth("Gbuff", [\i_sampbufnum: b]); 1 });//All of it
+2.wait;
+~gSynth.set(\fshiftl, -100, \fshiftr, -50);
+~gSynth3.set(\fshiftl, 50, \fshiftr, -50);
+2.wait;
+~btemp2.stop;
+~gSynth3.set(\fshiftl, 0, \fshiftr, -50);
+4.wait;
+~gSynth3.set(\fshiftl, -100, \fshiftr, -100);
+~btemp2 = TempoClock(1);
+~btemp2.schedAbs(~btemp2.beats.ceil, { ~gSynth = Synth("Gbuff", [\i_sampbufnum: b, \a1:0, \a2: 0.7, \a3: 0]); 1 });//last 2
+2.wait;
+~btemp3.stop;
+~gSynth.set(\fshiftl, -100, \fshiftr, -50);
+2.wait;
+~gSynth.set(\fshiftl, 50, \fshiftr, -50);
+1.wait;
+~gSynth.set(\fshiftl, -100, \fshiftr, -100);
+1.wait;
+~gSynth.set(\fshiftl, -130, \fshiftr, -130);
+2.wait;
+~gSynth.set(\fshiftl, -200, \fshiftr, -200);
+3.wait;
+	~pluckTaskvib.start;		//TASK A' STARTS
+2.wait;
+~btemp2.stop;
+~listFshiftl = Pseq([-100, -130, -200, 0], inf).asStream; //Buffer pitches
+~listFshiftr = Pseq([-100, -130, -200, 0], inf).asStream; //Buffer pitches9.do({ 
+~aa1 = 0.7;
+	11.do({ 			//Do loop fade out
+		Synth(\Gbuff, [\fshiftl, ~listFshiftl.next, \fshiftr, ~listFshiftr.next, \a1:~aa1, \a2: ~aa1, \a3: ~aa1]);
+		1.wait;
+		~aa1= ~aa1-(0.7/11);
+	});
+"task end".postln;
+});
+
+//
+//Section A' - Task 3/3
+//
+
+~pluckTaskvib = Task.new( {
+~pluckGroupvib = Group.new();
+~mvt3iii.valueAction = 1;	//gui window change
+
+	~pluck4 = Synth('Pluck', [\num, 0.5, \cFreq, 500, \vibset, 1, \volamp, 0.01], ~pluckGroupvib);
+7.wait;
+	~pluck1 = Synth('Pluck', [\num, 0.75, \cFreq, 200, \vibset, 1, \volamp, 0.01], ~pluckGroupvib);
+8.5.wait;
+	~pluck4.free;
+	~pluck1.set(\volamp, 0.02);
+	~pluck5 = Synth('Pluck', [\num, 1, \cFreq, 100, \vibset, 1, \volamp, 0.04], ~pluckGroupvib);
+7.wait;//22.5
+	~pluck4 = Synth('Pluck', [\num, 2, \cFreq, 500, \vibset, 1, \volamp, 0.03], ~pluckGroupvib);
+7.5.wait;
+	~pluck3 = Synth('Pluck', [\num, 1, \cFreq, 400, \vibset, 1, \volamp, 0.02], ~pluckGroupvib);
+2.wait;
+	~pluck1.free;
+3.5.wait;//35.5
+	~pluck4.free;
+	~pluck2 = Synth('Pluck', [\num, 1, \cFreq, 300, \vibset, 1, \sus, 1, \volamp, 0.01], ~pluckGroupvib);
+7.3.wait;
+	~pluck5.free;
+	~pluck1 = Synth('Pluck', [\num, 0.5, \cFreq, 200, \vibset, 1, \sus, 2, \volamp, 0.005], ~pluckGroupvib);//2/4
+8.2.wait;
+	~pluck2.free;
+	~pluck3.free;
+	~pluck5 = Synth('Pluck', [\num, 0.3, \cFreq, 200, \vibset, 0.1, \sus, 3, \volamp, 0.002], ~pluckGroupvib);//3/4
+8.2.wait;//60
+	~pluck1.set(\volamp, 0.0025);
+1.wait;
+	~pluck5.set(\volamp, 0.0015);
+	~pluck1.free;
+	~pluck3 = Synth('Pluck', [\num, 0.1, \cFreq, 300, \vibset, 0.01, \sus, 6, \volamp, 0.002], ~pluckGroupvib);//4/4
+4.8.wait;
+	~pluck5.set(\volamp, 0.001);
+4.wait;
+	~pluck3.set(\volamp, 0.001);
+	~pluck5.free;	//Here have a climax
+4.wait;
+	~pluck3.set(\volamp, 0.0009);
+4.wait;
+	~pluck3.set(\volamp, 0.0007);
+1.1.wait;
+	~pluck3.set(\volamp, 0.0005);
+~codaGbuffRoutine.play;		//CODA STARTS
+1.wait;
+	~pluck3.set(\volamp, 0.0001);
+
+1.wait;
+	~pluck3.free;
+	~pluckGroupvib.free; 
+"end task".postln;
+});
+)
+/////////////////////////
+//End of Movement III Tasks///////////////////////////////////////////////////////
+/////////////////////////
+
+//Coda Task:
+
+
+//coda task - Randomly tempermental
+(
+~codaGbuffRoutine = Routine({var val, numRepeat, numt = 5, crain1, crain2, repeats;
+
+~mvt4.valueAction = 1;	//gui window change
+"Coda".postln;
+
+3.do({numt.value.postln;//3.do
+val = ~freqArray.at(numt);
+	Synth('aGoodCodaSynth', [\freq, val]);
+val.value.postln;
+numt=numt-1;
+4.wait;
+}); 
+
+
+crain2 = Synth('Crain', [\num, 5]);
+3.wait;
+crain1 = Synth('Crain', [\num, 4]);
+
+1.wait;
+Synth('aGoodCodaSynth', [\freq, ~freqArray.at(2)]);
+
+//vars for 13.do below
+~listFshiftl = Pseq([-100, -130, -200, 0, 0], inf).asStream; //Buffer pitches
+~listFshiftr = Pseq([-100, -130, -200, 0, 0], inf).asStream; //Buffer pitches9.do({ 
+~aa1 = 0.3;//Pseq([0.7, , -200, 0, 0], inf).asStream;
+repeats = 1;
+
+13.do({//do loop
+1.1.wait;
+Synth(\Gbuff, [\fshiftl, ~listFshiftl.next, \fshiftr, ~listFshiftr.next, \a1:~aa1, \a2: ~aa1, \a3: ~aa1]); 
+~aa1 = ~aa1-0.021;
+0.9.wait;
+	if(repeats.value==8,//Stops crain1 on 8th time round
+	{crain1.free;},
+		{if(repeats.value==5,//Stops crain2 on 5th time round
+		{crain2.free;},{repeats.value.postln;});});
+	
+repeats = repeats + 1;
+});//End of do loop
+
+Synth(\FinalNote, [\freq,54.75.midicps]);
+//g.free;
+~timey = Main.elapsedTime;
+~timey = ~timey-~timex;
+~timey.postln;
+"time".postln;
+~mvt4.valueAction = 2;
+});
+)
+
+/////////////////////////
+//End of Tasks///////////////////////////////////////////////////////
+///////////////////////// 
+
+//Minimize this window and go to Gui Window                 

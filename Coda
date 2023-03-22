@@ -1,0 +1,124 @@
+ 
+//coda task  
+(
+~codaGbuffRoutine = Routine({
+~mvt4.valueAction = 1;
+"coda Gbuff".postln;
+g = Group.new();
+Synth('Crain', [\num, 5], g);
+Synth('Crain', [\num, 4], g);
+Synth('CrainMouse', [\num, 6], g);
+
+~listFshiftl = Pseq([-100, -130, -200, 0, 0], inf).asStream; //Buffer pitches
+~listFshiftr = Pseq([-100, -130, -200, 0, 0], inf).asStream; //Buffer pitches9.do({ 
+~aa1 = 0.5;//Pseq([0.7, , -200, 0, 0], inf).asStream;
+13.do({
+1.1.wait;
+Synth(\Gbuff, [\fshiftl, ~listFshiftl.next, \fshiftr, ~listFshiftr.next, \a1:~aa1, \a2: ~aa1, \a3: ~aa1]); 
+~aa1 = ~aa1-(0.5/13);
+0.9.wait;
+});
+Synth(\FinalNote, [\freq,54.75.midicps]);
+g.free;
+});
+)
+
+
+~codaGbuffRoutine.play;           
+
+(
+//Final Note
+SynthDef(\FinalNote, { |freq = 220, amp = 0.1, gate = 1, sus = 0.05, num = 1|
+    var midfreqs, sound, vibenv, freq1, mouserez;
+sound = LFNoise1.ar(100,2)*EnvGen.ar(Env.new([1,0],[0.25], 'welch'));
+sound = sound + SinOsc.ar(freq/2)*EnvGen.ar(Env.new([1,0],[0.25], 'welch'));// + SinOsc.ar(freq/4)*EnvGen.ar(Env.new([1,0],[0.25], 'welch'));
+sound = sound + WhiteNoise.ar(1)*EnvGen.ar(Env.new([0,1,0.5,0.1,0],[0.1,0.1,4,5], 'welch'));//Change here if its too loud which it might
+sound = sound + (LFSaw.ar([freq, freq*0.5], 0, 0.01)*EnvGen.ar(Env.new([0,1,0.1,0],[0.2,1,1], 'welch'), doneAction:0));
+sound = LPZ1.ar(sound);
+sound = LPF.ar(sound, 2*freq);
+sound = CombN.ar(Resonz.ar(sound, freq, 0.04, 2), 1, 0.1, 10, 2);
+sound = BPF.ar(sound, freq, XLine.kr(2,0.04,10), 1);
+sound = FreqShift.ar(sound, -200);
+Out.ar(0, (sound*0.5))
+}).send(s);
+)
+
+b = Synth(\FinalNote, [\freq,55.midicps]);
+     
+
+SynthDef('aGoodCodaSynth', { arg freq;
+var train, freq2, freq3, freq4, pan;
+freq2 = freq*0.456;
+freq3 = freq*0.833;
+freq4 = freq2+freq3;
+train = Klank.ar(`[[freq, freq2, freq3, freq4], nil, [1, 1, 1, 1, 1],[1,2,1,2,1]], PinkNoise.ar(0.007));
+train = HPF.ar(train, 1300);
+pan = MouseX.kr(-1, 1, 0.01);
+train = Pan2.ar(train, pan);
+train = train * EnvGen.kr(Env.new([0,0.2,0.3,0.4,0.3,0.2,0],[3,4,2,1,2,1]), doneAction:2);
+Out.ar(0, train*0.5)
+}).send(s);
+
+             
+
+
+
+
+
+
+
+
+
+
+~codaGbuffRoutine.play;
+
+
+
+ 
+//coda task - Randomly tempermental
+(
+~codaGbuffRoutine = Routine({var val, numRepeat, numt = 5, crain1, crain2, repeats;
+
+//~mvt4.valueAction = 1;
+"Coda".postln;
+
+3.do({numt.value.postln;//3.do
+val = ~freqArray.at(numt);
+	Synth('aGoodCodaSynth', [\freq, val]);
+val.value.postln;
+numt=numt-1;
+4.wait;
+}); 
+
+
+crain2 = Synth('Crain', [\num, 5]);
+3.wait;
+crain1 = Synth('Crain', [\num, 4]);
+
+1.wait;
+Synth('aGoodCodaSynth', [\freq, ~freqArray.at(2)]);
+
+//vars for 13.do below
+~listFshiftl = Pseq([-100, -130, -200, 0, 0], inf).asStream; //Buffer pitches
+~listFshiftr = Pseq([-100, -130, -200, 0, 0], inf).asStream; //Buffer pitches9.do({ 
+~aa1 = 0.3;//Pseq([0.7, , -200, 0, 0], inf).asStream;
+repeats = 1;
+
+13.do({//do loop
+1.1.wait;
+Synth(\Gbuff, [\fshiftl, ~listFshiftl.next, \fshiftr, ~listFshiftr.next, \a1:~aa1, \a2: ~aa1, \a3: ~aa1]); 
+~aa1 = ~aa1-0.021;
+0.9.wait;
+	if(repeats.value==8,//Stops crain1 on 8th time round
+	{crain1.free;},
+		{if(repeats.value==5,//Stops crain2 on 5th time round
+		{crain2.free;},{repeats.value.postln;});});
+	
+repeats = repeats + 1;
+});//End of do loop
+
+Synth(\FinalNote, [\freq,54.75.midicps]);
+//g.free;
+});
+)
+ 
